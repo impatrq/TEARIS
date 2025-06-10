@@ -33,3 +33,10 @@ Además, se podrá personalizar qué sonidos permitir y cuáles bloquear, lo que
 
 ⏱️ Procesamiento en Tiempo Real
 Para garantizar una experiencia fluida y sin demoras, TEARIS empleará procesamiento de señal optimizado en microcontroladores como ESP32 o Raspberry Pi Pico con módulos de audio dedicados. Se evaluarán opciones de hardware con soporte para procesamiento paralelo o incluso unidades de aceleración de IA (como el Google Edge TPU si fuera necesario).
+
+
+INTEGRANTES:
+Britez Luis
+Tolosa Santino
+Somoza Juan Cruz
+Bianco Tomas
