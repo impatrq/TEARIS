@@ -37,6 +37,9 @@ Para garantizar una experiencia fluida y sin demoras, TEARIS empleará procesami
 
 INTEGRANTES:
 Britez Luis
+
 Tolosa Santino
+
 Somoza Juan Cruz
+
 Bianco Tomas
