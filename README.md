@@ -126,15 +126,6 @@ Consulta el archivo [CONTRIBUTING.md](CONTRIBUTING.md) para más detalles.
 * Soluciones similares en ANC adaptativo
 
 ---
-
-## 📞 Contacto
-
-Para consultas, feedback o colaboración:
-
-* **Email**: [equipo.tearis@example.com](mailto:equipo.tearis@example.com)
-* **GitHub Issues**: crea un ticket y te respondemos
-* **Instagram / LinkedIn**: pronto disponibles
-
 ---
 
 **TEARIS no es solo tecnología, es inclusión.** 🚀
