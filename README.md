@@ -73,7 +73,7 @@ Desarrollado en el Taller Regional Quilmes – E.E.T. Nº 7, Especialidad Avi�
 * Tomás M. Bianco
 * Luis Britez
 * Santino R. Ramírez Tolosa
-* Juan C. Somoza (Juan Cruz Ariel)
+* Juan C. Somoza 
 
 ---
 
