@@ -137,11 +137,11 @@ class _TearisHomeState extends State<TearisHome> {
             const SizedBox(height: 20),
             buildButton(Icons.school, "Modo Escuela", () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Modo escuela activad0")),
+                const SnackBar(content: Text("Modo escuela activado")),
               );
             }),
             const SizedBox(height: 20),
-            buildButton(Icons.emoji_transportation, "Modo transporte", () {
+            buildButton(Icons.emoji_transportation, "Modo Transporte", () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Modo transporte activado")),
               );
