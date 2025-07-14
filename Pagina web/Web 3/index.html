@@ -479,6 +479,217 @@
             background: rgba(62, 95, 125, 0.2);
         }
 
+        /* Sección de progreso premium */
+        .progress-section {
+            padding: 8rem 5%;
+            background: linear-gradient(135deg, var(--background) 0%, #e6f0f5 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(62, 95, 125, 0.05) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .timeline-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Línea de tiempo decorativa */
+        .timeline {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent-color);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .milestones-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .milestone {
+            display: flex;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            align-items: stretch;
+        }
+
+        .milestone:nth-child(odd) {
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+
+        .milestone:nth-child(even) {
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .milestone-content {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 40px rgba(30, 58, 76, 0.15);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            transition: all 0.5s ease;
+            border: 1px solid rgba(62, 95, 125, 0.1);
+        }
+
+        .milestone-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        .milestone-image {
+            flex: 1;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .milestone:hover .milestone-image {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .milestone-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .milestone:hover .milestone-image img {
+            transform: scale(1.05);
+        }
+
+        .milestone-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .milestone-content h3 i {
+            width: 60px;
+            height: 60px;
+            background: rgba(58, 160, 181, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .milestone-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1.8rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .milestone-date {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+        }
+
+        /* Animaciones de hover */
+        .milestone:hover .milestone-content {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 60px rgba(30, 58, 76, 0.25);
+        }
+
+        .milestone:hover .milestone-date {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+        }
+
+        .milestone-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .milestone-content h3 i {
+            width: 60px;
+            height: 60px;
+            background: rgba(58, 160, 181, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .milestone-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1.8rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .milestone-date {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+        }
+
+        /* Ajuste específico para la imagen del INTI */
+        .milestone:first-child .milestone-image {
+            max-width: 80%;
+            margin: 0 auto;
+        }
+        
         /* Team */
         .team-grid {
             display: grid;
@@ -779,6 +990,39 @@
             .contact-icon {
                 margin-bottom: 1rem;
             }
+
+            /* Responsive para la nueva sección de progreso */
+            .progress-section {
+                padding: 5rem 5%;
+            }
+            
+            .milestones-container {
+                gap: 3rem;
+            }
+            
+            .milestone {
+                flex-direction: column !important;
+                align-items: stretch;
+            }
+            
+            .milestone-content, .milestone-image {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .timeline {
+                left: 30px;
+            }
+            
+            .milestone-point {
+                left: 30px;
+            }
+            
+            .milestone-image {
+                margin-top: 2rem;
+                transform: translateY(0) !important;
+                opacity: 1 !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -802,7 +1046,23 @@
             .stat-item {
                 min-width: 100%;
             }
+            
+            .milestone-content {
+                padding: 1.8rem;
+            }
+            
+            .milestone-content h3 i {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
         }
+    </style>
+    <style>
+    .milestone-img-contain {
+        object-fit: contain !important;
+        background: #f5f6f7;
+    }
     </style>
 </head>
 <body>
@@ -816,6 +1076,8 @@
             <a href="#how-it-works">Funcionamiento</a>
             <a href="#applications">Aplicaciones</a>
             <a href="#impact">Impacto</a>
+            <!-- Nuevo enlace para la sección Progreso -->
+            <a href="#progress">Progreso</a>
             <a href="#team">Equipo</a>
             <a href="#contact">Contacto</a>
         </div>
@@ -976,6 +1238,92 @@
         </div>
     </section>
 
+    <!-- Sección de Progreso Premium -->
+    <section id="progress" class="progress-section">
+        <div class="section-title" data-aos="fade-up">
+            <h2>Nuestro Progreso</h2>
+            <p>Hitos clave en el desarrollo de nuestra solución tecnológica</p>
+        </div>
+        
+        <div class="timeline-container">
+            <div class="timeline"></div>
+            
+            <div class="milestones-container">
+                <!-- Hito 1 - Apoyo del INTI -->
+                <div class="milestone" data-aos="fade-up">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-handshake"></i> Apoyo del INTI</h3>
+                        <p>Establecimos una colaboración estratégica con el Instituto Nacional de Tecnología Industrial para validar nuestro prototipo y recibir asesoramiento técnico especializado. Este respaldo institucional nos permite asegurar la calidad y eficacia de nuestra solución.</p>
+                        <div class="milestone-date">Marzo 2024</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-check-circle"></i> Validación de prototipo</div>
+                            <div class="tech-item"><i class="fas fa-check-circle"></i> Asesoramiento técnico</div>
+                            <div class="tech-item"><i class="fas fa-check-circle"></i> Certificación de calidad</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img src="images/progress/inti.jpg" alt="Reunión con el INTI">
+                    </div>
+                </div>
+                
+                <!-- Hito 2 - Entrenamiento de IA -->
+                <div class="milestone milestone-ia" data-aos="fade-up" data-aos-delay="200">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-brain"></i> Entrenamiento de IA</h3>
+                        <p>Conseguimos entrenar a la IA mediante Edge Impulse pensando en la portabilidad y ligereza del modelo. Utilizamos técnicas avanzadas de aprendizaje automático para crear un sistema eficiente que funciona en dispositivos de bajo consumo.</p>
+                        <div class="milestone-date">Abril 2024</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-microchip"></i> Edge Impulse</div>
+                            <div class="tech-item"><i class="fas fa-robot"></i> Machine Learning</div>
+                            <div class="tech-item"><i class="fas fa-bolt"></i> Procesamiento eficiente</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img src="images/progress/ia.jpg" alt="Entrenamiento de IA" class="milestone-img-contain">
+                    </div>
+                </div>
+                
+                <!-- Hito 3 - Pruebas de audio -->
+                <div class="milestone" data-aos="fade-up" data-aos-delay="400">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-headphones"></i> Pruebas de Audio</h3>
+                        <p>Implementamos nuestro sistema en una Raspberry Pi Zero 2W con el sistema operativo Raspbian para la captura y procesamiento de audio con micrófonos de alta calidad. Realizamos pruebas exhaustivas en diferentes entornos para optimizar el rendimiento.</p>
+                        <div class="milestone-date">Mayo 2024</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-raspberry-pi"></i> Raspberry Pi Zero 2W</div>
+                            <div class="tech-item"><i class="fas fa-linux"></i> Raspbian OS</div>
+                            <div class="tech-item"><i class="fas fa-microphone"></i> Captura de alta calidad</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img src="images/progress/audio.jpg" alt="Pruebas de audio">
+                    </div>
+                </div>
+                
+                <!-- Hito 4 - Próximos pasos -->
+                <div class="milestone" data-aos="fade-up" data-aos-delay="600">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-rocket"></i> Próximos Pasos</h3>
+                        <p>Actualmente estamos trabajando en el diseño final del dispositivo y la integración de todas las tecnologías desarrolladas.</p>
+                        <div class="milestone-date">Junio 2024</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-pencil-ruler"></i> Diseño final</div>
+                            <div class="tech-item"><i class="fas fa-cogs"></i> Integración tecnológica</div>
+                            <div class="tech-item"><i class="fas fa-users"></i> Pruebas con usuarios</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img src="images/progress/proximos.jpg" alt="Próximos pasos">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Team -->
     <section id="team" class="team">
         <div class="section-title" data-aos="fade-up">
@@ -1000,7 +1348,7 @@
             
             <div class="team-member" data-aos="zoom-in" data-aos-delay="400">
                 <div class="member-photo">
-                    <i class="fas fa-user"></i>
+                    <img src="images/team/luis.jpg" alt="Luis Brítez">
                 </div>
                 <div class="member-info">
                     <h3>BRITEZ, Luis</h3>
@@ -1170,6 +1518,39 @@
                 navLinks.classList.toggle('show');
             });
         }
+        
+        // Animación adicional para los hitos al aparecer
+        document.addEventListener('DOMContentLoaded', function() {
+            const milestones = document.querySelectorAll('.milestone');
+            
+            milestones.forEach(milestone => {
+                // Animación al pasar el mouse
+                milestone.addEventListener('mouseenter', () => {
+                    const image = milestone.querySelector('.milestone-image img');
+                    image.style.transform = 'scale(1.05)';
+                });
+                
+                milestone.addEventListener('mouseleave', () => {
+                    const image = milestone.querySelector('.milestone-image img');
+                    image.style.transform = 'scale(1)';
+                });
+                
+                // Animación de aparición al hacer scroll
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const image = entry.target.querySelector('.milestone-image');
+                            image.style.transform = 'translateY(0)';
+                            image.style.opacity = '1';
+                        }
+                    });
+                }, { threshold: 0.3 });
+                
+                observer.observe(milestone);
+            });
+        });
+        
+
     </script>
 </body>
 </html>
