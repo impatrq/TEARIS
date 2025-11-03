@@ -2,6 +2,7 @@
 """
 TEARIS - Servidor BLE para Raspberry Pi Zero 2 W
 Este script convierte la Raspberry Pi en un servidor BLE que se comunica con la app Flutter
+Versión con integración WM8960 Audio HAT
 """
 
 import dbus
@@ -18,6 +19,18 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Intentar cargar control del WM8960
+try:
+    from wm8960_control import WM8960Controller
+    wm8960 = WM8960Controller()
+    WM8960_AVAILABLE = True
+    logger.info("✅ WM8960 controller cargado correctamente")
+except Exception as e:
+    WM8960_AVAILABLE = False
+    wm8960 = None
+    logger.warning(f"⚠️ WM8960 no disponible: {e}")
+    logger.warning("El servidor funcionará solo con BLE (sin control de audio)")
+
 # Constantes BLE
 BLUEZ_SERVICE_NAME = 'org.bluez'
 GATT_MANAGER_IFACE = 'org.bluez.GattManager1'
@@ -32,7 +45,7 @@ TEARIS_SERVICE_UUID = '12345678-1234-5678-1234-56789abcdef0'
 BATTERY_CHARACTERISTIC_UUID = '12345678-1234-5678-1234-56789abcdef1'
 MODE_CHARACTERISTIC_UUID = '12345678-1234-5678-1234-56789abcdef2'
 STATUS_CHARACTERISTIC_UUID = '12345678-1234-5678-1234-56789abcdef3'
-
+VOLUME_CHARACTERISTIC_UUID = '12345678-1234-5678-1234-56789abcdef4'
 
 class Application(dbus.service.Object):
     """
@@ -205,6 +218,7 @@ class TearisService(Service):
         self.add_characteristic(BatteryCharacteristic(bus, 0, self))
         self.add_characteristic(ModeCharacteristic(bus, 1, self))
         self.add_characteristic(StatusCharacteristic(bus, 2, self))
+        self.add_characteristic(VolumeCharacteristic(bus, 3, self))
 
 
 class BatteryCharacteristic(Characteristic):
@@ -301,32 +315,79 @@ class ModeCharacteristic(Characteristic):
         Activa el modo escuela - ajustes específicos para ambiente escolar
         """
         logger.info('🏫 Activating SCHOOL mode')
-        # Aquí puedes agregar código para:
-        # - Reducir cancelación de ruido para escuchar al profesor
-        # - Ajustar ecualización para voces
-        # - Limitar volumen máximo
-        pass
+        
+        if WM8960_AVAILABLE:
+            try:
+                wm8960.set_mode_school()
+                logger.info('✅ WM8960 configurado para modo ESCUELA')
+            except Exception as e:
+                logger.error(f'❌ Error configurando WM8960: {e}')
+        else:
+            logger.info('ℹ️  Modo ESCUELA activado (solo BLE, sin control de audio)')
 
     def activate_transport_mode(self):
         """
         Activa el modo transporte - ajustes para viajes
         """
         logger.info('🚌 Activating TRANSPORT mode')
-        # Aquí puedes agregar código para:
-        # - Aumentar cancelación de ruido
-        # - Filtrar frecuencias bajas (motor, ruido ambiente)
-        # - Activar modo de seguridad para anuncios
-        pass
+        
+        if WM8960_AVAILABLE:
+            try:
+                wm8960.set_mode_transport()
+                logger.info('✅ WM8960 configurado para modo TRANSPORTE')
+            except Exception as e:
+                logger.error(f'❌ Error configurando WM8960: {e}')
+        else:
+            logger.info('ℹ️  Modo TRANSPORTE activado (solo BLE, sin control de audio)')
 
     def activate_normal_mode(self):
         """
         Activa el modo normal - configuración estándar
         """
         logger.info('🎧 Activating NORMAL mode')
-        # Configuración estándar
-        pass
+        
+        if WM8960_AVAILABLE:
+            try:
+                wm8960.set_mode_normal()
+                logger.info('✅ WM8960 configurado para modo NORMAL')
+            except Exception as e:
+                logger.error(f'❌ Error configurando WM8960: {e}')
+        else:
+            logger.info('ℹ️  Modo NORMAL activado (solo BLE, sin control de audio)')
 
-
+class VolumeCharacteristic(Characteristic):
+    """
+    Característica para controlar el volumen
+    """
+    def __init__(self, bus, index, service):
+        Characteristic.__init__(
+            self, bus, index,
+            VOLUME_CHARACTERISTIC_UUID,
+            ['read', 'write'],
+            service)
+        self.volume_level = 60  # Volumen inicial
+    
+    def ReadValue(self, options):
+        logger.info(f'Volume read: {self.volume_level}%')
+        return dbus.Array([dbus.Byte(self.volume_level)])
+    
+    def WriteValue(self, value, options):
+        new_volume = int(value[0])
+        
+        # Limitar entre 0-85% (protección para hiperacusia)
+        new_volume = max(0, min(85, new_volume))
+        
+        self.volume_level = new_volume
+        logger.info(f'🔊 Volume change: {new_volume}%')
+        
+        if WM8960_AVAILABLE:
+            try:
+                wm8960.set_volume(new_volume)
+                logger.info(f'✅ Volumen WM8960 ajustado a {new_volume}%')
+            except Exception as e:
+                logger.error(f'❌ Error ajustando volumen: {e}')
+                
+                
 class StatusCharacteristic(Characteristic):
     """
     Característica para leer el estado general del dispositivo
@@ -339,7 +400,11 @@ class StatusCharacteristic(Characteristic):
             service)
 
     def ReadValue(self, options):
-        status_info = "TEARIS_READY"
+        if WM8960_AVAILABLE:
+            status_info = "TEARIS_READY_WITH_AUDIO"
+        else:
+            status_info = "TEARIS_READY_BLE_ONLY"
+        
         logger.info(f'Status read: {status_info}')
         return dbus.Array([dbus.Byte(c) for c in status_info.encode()])
 
@@ -371,13 +436,26 @@ def find_adapter(bus):
 def main():
     global mainloop
 
+    logger.info("=" * 60)
+    logger.info("TEARIS BLE Server - Iniciando...")
+    logger.info("=" * 60)
+    
+    if WM8960_AVAILABLE:
+        logger.info("🎵 Modo: BLE + Control de Audio WM8960")
+    else:
+        logger.info("📡 Modo: Solo BLE (sin control de audio)")
+    
+    logger.info("=" * 60)
+
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
     bus = dbus.SystemBus()
 
     adapter = find_adapter(bus)
     if not adapter:
-        logger.error('GattManager1 interface not found')
+        logger.error('❌ GattManager1 interface not found')
+        logger.error('Verifica que el servicio Bluetooth esté corriendo:')
+        logger.error('  sudo systemctl status bluetooth')
         return
 
     logger.info(f'Using adapter: {adapter}')
@@ -394,14 +472,20 @@ def main():
                                         reply_handler=register_app_cb,
                                         error_handler=register_app_error_cb)
 
-    logger.info('TEARIS BLE Server is running...')
+    logger.info('=' * 60)
+    logger.info('✅ TEARIS BLE Server is running!')
+    logger.info('Dispositivo visible como: TEARIS')
+    logger.info('Esperando conexiones desde la app...')
     logger.info('Press Ctrl+C to exit')
+    logger.info('=' * 60)
 
     mainloop = GLib.MainLoop()
     try:
         mainloop.run()
     except KeyboardInterrupt:
-        logger.info('Shutting down...')
+        logger.info('\n' + '=' * 60)
+        logger.info('👋 Shutting down TEARIS BLE Server...')
+        logger.info('=' * 60)
 
 
 if __name__ == '__main__':
