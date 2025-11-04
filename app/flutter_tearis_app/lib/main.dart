@@ -47,10 +47,12 @@ class _TearisHomeState extends State<TearisHome> {
   BluetoothCharacteristic? batteryCharacteristic;
   BluetoothCharacteristic? modeCharacteristic;
   BluetoothCharacteristic? statusCharacteristic;
+  BluetoothCharacteristic? volumeCharacteristic;
   
   String connectionStatus = "Desconectado";
   int batteryLevel = 0;
   String currentMode = "Normal";
+  int currentVolume = 60;
   bool isScanning = false;
   bool isConnecting = false;
   
@@ -64,6 +66,7 @@ class _TearisHomeState extends State<TearisHome> {
   static const String batteryCharUuid = "12345678-1234-5678-1234-56789abcdef1";
   static const String modeCharUuid = "12345678-1234-5678-1234-56789abcdef2";
   static const String statusCharUuid = "12345678-1234-5678-1234-56789abcdef3";
+  static const String volumeCharUuid = "12345678-1234-5678-1234-56789abcdef4";
 
   @override
   void initState() {
@@ -277,6 +280,19 @@ class _TearisHomeState extends State<TearisHome> {
               modeCharacteristic = characteristic;
             } else if (charUuid == statusCharUuid.toLowerCase()) {
               statusCharacteristic = characteristic;
+            } else if (charUuid == volumeCharUuid.toLowerCase()) {
+              volumeCharacteristic = characteristic;
+              // Leer volumen inicial
+              try {
+                final initialVolume = await characteristic.read();
+                if (initialVolume.isNotEmpty) {
+                  setState(() {
+                    currentVolume = initialVolume[0];
+                  });
+                }
+              } catch (e) {
+                debugPrint("Error leyendo volumen inicial: $e");
+              }
             }
           }
         }
@@ -341,6 +357,22 @@ class _TearisHomeState extends State<TearisHome> {
     }
   }
 
+  Future<void> setVolume(int volume) async {
+    if (volumeCharacteristic == null) {
+      showSnackBar("No conectado a los auriculares");
+      return;
+    }
+
+    try {
+      await volumeCharacteristic!.write([volume]);
+      setState(() {
+        currentVolume = volume;
+      });
+    } catch (e) {
+      showSnackBar("Error ajustando volumen: $e");
+    }
+  }
+
   Future<void> disconnectDevice() async {
     if (connectedDevice == null) return;
 
@@ -359,9 +391,11 @@ class _TearisHomeState extends State<TearisHome> {
       batteryCharacteristic = null;
       modeCharacteristic = null;
       statusCharacteristic = null;
+      volumeCharacteristic = null;
       connectionStatus = "Desconectado";
       batteryLevel = 0;
       currentMode = "Normal";
+      currentVolume = 60;
     });
     
     batterySubscription?.cancel();
@@ -537,6 +571,106 @@ class _TearisHomeState extends State<TearisHome> {
             
             const Divider(),
             const SizedBox(height: 20),
+
+            // Control de volumen
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.indigoAccent.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.volume_up, size: 28, color: Colors.indigoAccent),
+                          SizedBox(width: 12),
+                          Text(
+                            "Volumen",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.indigoAccent.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          "$currentVolume%",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigoAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: Colors.indigoAccent,
+                      inactiveTrackColor: Colors.grey.withOpacity(0.3),
+                      thumbColor: Colors.indigoAccent,
+                      overlayColor: Colors.indigoAccent.withOpacity(0.2),
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
+                    ),
+                    child: Slider(
+                      value: currentVolume.toDouble(),
+                      min: 0,
+                      max: 85, // Límite seguro para hiperacusia
+                      divisions: 17,
+                      label: "$currentVolume%",
+                      onChanged: connectedDevice != null 
+                        ? (value) {
+                            setVolume(value.toInt());
+                          }
+                        : null,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "0%",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                      Text(
+                        "Límite: 85% (protección)",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          color: isDark ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                      Text(
+                        "85%",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
 
             // Título de modos
             const Text(
