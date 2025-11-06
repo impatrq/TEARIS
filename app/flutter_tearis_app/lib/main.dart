@@ -147,11 +147,7 @@ class _TearisHomeState extends State<TearisHome> {
 
       scanSubscription = FlutterBluePlus.scanResults.listen((results) {
         setState(() {
-          scanResults = results.where((r) => 
-            r.device.name.isNotEmpty && 
-            (r.device.name.toLowerCase().contains('tearis') || 
-             r.device.name.toLowerCase().contains('pi'))
-          ).toList();
+          scanResults = results.toList();
         });
       });
 
