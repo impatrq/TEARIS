@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 
     <!-- Permisos adicionales -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,7 +16,7 @@
 
     <!-- Requerido para compatibilidad con Android 10+ -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
+   <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
     <application
         android:label="flutter_tearis_app"
         android:name="${applicationName}"
