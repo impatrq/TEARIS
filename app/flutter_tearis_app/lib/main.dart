@@ -3,6 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data'; // Para Uint8List (debug)
 
 void main() {
   runApp(const TearisApp());
@@ -48,6 +49,7 @@ class _TearisHomeState extends State<TearisHome> {
   BluetoothCharacteristic? modeCharacteristic;
   BluetoothCharacteristic? statusCharacteristic;
   BluetoothCharacteristic? volumeCharacteristic;
+  BluetoothCharacteristic? audioCharacteristic;
   
   String connectionStatus = "Desconectado";
   int batteryLevel = 0;
@@ -55,18 +57,22 @@ class _TearisHomeState extends State<TearisHome> {
   int currentVolume = 60;
   bool isScanning = false;
   bool isConnecting = false;
+  bool isAudioStreaming = false; // Estado para la UI (si el stream está activo)
+  int audioPacketCount = 0; // Contador de paquetes para debug
   
   List<ScanResult> scanResults = [];
   StreamSubscription? scanSubscription;
   StreamSubscription? connectionSubscription;
   StreamSubscription? batterySubscription;
+  StreamSubscription? audioSubscription;
 
-  // UUIDs para el servicio BLE de TEARIS
+  // UUIDs para el servicio BLE de TEARIS (deben coincidir con el servidor Python)
   static const String tearisServiceUuid = "12345678-1234-5678-1234-56789abcdef0";
   static const String batteryCharUuid = "12345678-1234-5678-1234-56789abcdef1";
   static const String modeCharUuid = "12345678-1234-5678-1234-56789abcdef2";
   static const String statusCharUuid = "12345678-1234-5678-1234-56789abcdef3";
   static const String volumeCharUuid = "12345678-1234-5678-1234-56789abcdef4";
+  static const String audioStreamCharUuid = "12345678-1234-5678-1234-56789abcdef5";
 
   @override
   void initState() {
@@ -80,6 +86,7 @@ class _TearisHomeState extends State<TearisHome> {
     scanSubscription?.cancel();
     connectionSubscription?.cancel();
     batterySubscription?.cancel();
+    audioSubscription?.cancel();
     super.dispose();
   }
 
@@ -105,34 +112,63 @@ class _TearisHomeState extends State<TearisHome> {
   }
 
   Future<void> checkPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.bluetooth,
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-      Permission.location,
-    ].request();
-
-    bool allGranted = statuses.values.every((status) => status.isGranted);
-    
-    if (!allGranted && mounted) {
+  // Si el permiso de Bluetooth o ubicación está permanentemente denegado
+  if (await Permission.bluetoothScan.isPermanentlyDenied ||
+      await Permission.bluetoothConnect.isPermanentlyDenied ||
+      await Permission.location.isPermanentlyDenied) {
+    if (mounted) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text("Permisos Necesarios"),
+          title: const Text("Permisos requeridos"),
           content: const Text(
-            "TEARIS necesita permisos de Bluetooth y ubicación para funcionar correctamente."
+            "TEARIS necesita permisos de Bluetooth y ubicación. Por favor, habilítalos manualmente desde la configuración del sistema."
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              onPressed: () {
+                openAppSettings();
+                Navigator.pop(context);
+              },
+              child: const Text("Abrir ajustes"),
             ),
           ],
         ),
       );
     }
+    return;
   }
 
+  // Pedimos permisos
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.bluetooth,
+    Permission.bluetoothScan,
+    Permission.bluetoothConnect,
+    Permission.location,
+  ].request();
+
+  bool allGranted = statuses.values.every((status) => status.isGranted);
+
+  if (!allGranted && mounted) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Permisos necesarios"),
+        content: const Text(
+          "TEARIS necesita permisos de Bluetooth y ubicación para funcionar correctamente."
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+  
+  // 🚨 FUNCIÓN MODIFICADA: Se quita el filtro por UUID en startScan y se filtra por nombre en el listener.
   Future<void> scanForDevices() async {
     if (isScanning) return;
 
@@ -143,11 +179,25 @@ class _TearisHomeState extends State<TearisHome> {
     });
 
     try {
-      await FlutterBluePlus.startScan(timeout: const Duration(seconds: 10));
+      // Se escanea sin filtro de UUID para encontrar todos los dispositivos.
+      await FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 10),
+        // Se ha quitado 'withServices: [Guid(tearisServiceUuid)],' para depuración
+      );
 
       scanSubscription = FlutterBluePlus.scanResults.listen((results) {
         setState(() {
-          scanResults = results.toList();
+          // Se filtra manualmente por el nombre "TEARIS" o por cualquier nombre no vacío.
+          scanResults = results.where((result) {
+            final name = result.device.platformName.toLowerCase();
+            return name.contains("tearis") || result.device.platformName.isNotEmpty;
+          }).toList(); 
+          
+          if (scanResults.isEmpty) {
+            connectionStatus = "Buscando dispositivos...";
+          } else {
+            connectionStatus = "Selecciona tus auriculares (encontrados ${scanResults.length})";
+          }
         });
       });
 
@@ -188,7 +238,7 @@ class _TearisHomeState extends State<TearisHome> {
               final result = scanResults[index];
               return ListTile(
                 leading: const Icon(Icons.headphones),
-                title: Text(result.device.name),
+                title: Text(result.device.platformName.isNotEmpty ? result.device.platformName : "Dispositivo sin nombre"),
                 subtitle: Text(result.device.id.toString()),
                 trailing: Text("${result.rssi} dBm"),
                 onTap: () {
@@ -214,7 +264,7 @@ class _TearisHomeState extends State<TearisHome> {
 
     setState(() {
       isConnecting = true;
-      connectionStatus = "Conectando a ${device.name}...";
+      connectionStatus = "Conectando a ${device.platformName}...";
     });
 
     try {
@@ -232,13 +282,13 @@ class _TearisHomeState extends State<TearisHome> {
       
       setState(() {
         isConnecting = false;
-        connectionStatus = "✅ Conectado a ${device.name}";
+        connectionStatus = "✅ Conectado a ${device.platformName}";
       });
-
+  
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Conectado exitosamente a ${device.name}"),
+            content: Text("Conectado exitosamente a ${device.platformName}"),
             backgroundColor: Colors.green,
           ),
         );
@@ -289,6 +339,9 @@ class _TearisHomeState extends State<TearisHome> {
               } catch (e) {
                 debugPrint("Error leyendo volumen inicial: $e");
               }
+            } else if (charUuid == audioStreamCharUuid.toLowerCase()) {
+              audioCharacteristic = characteristic;
+              await subscribeToAudio(characteristic);
             }
           }
         }
@@ -318,6 +371,35 @@ class _TearisHomeState extends State<TearisHome> {
       }
     } catch (e) {
       debugPrint("Error subscribing to battery: $e");
+    }
+  }
+
+  Future<void> subscribeToAudio(BluetoothCharacteristic characteristic) async {
+    try {
+      await characteristic.setNotifyValue(true);
+      
+      audioSubscription = characteristic.value.listen((value) {
+        if (value.isNotEmpty) {
+          setState(() {
+            isAudioStreaming = true;
+            audioPacketCount++;
+          });
+          debugPrint("Paquete de audio recibido: ${value.length} bytes");
+          // Aquí NO reproducimos, solo monitoreamos para debug
+        }
+      });
+
+      try {
+        final initialValue = await characteristic.read();
+        if (initialValue.isNotEmpty) {
+          debugPrint("Valor inicial de audio: ${initialValue.length} bytes");
+        }
+      } catch (e) {
+        debugPrint("Error leyendo audio inicial: $e");
+      }
+    } catch (e) {
+      debugPrint("Error subscribing to audio: $e");
+      showSnackBar("Error en suscripción de audio: $e");
     }
   }
 
@@ -388,14 +470,18 @@ class _TearisHomeState extends State<TearisHome> {
       modeCharacteristic = null;
       statusCharacteristic = null;
       volumeCharacteristic = null;
+      audioCharacteristic = null;
       connectionStatus = "Desconectado";
       batteryLevel = 0;
       currentMode = "Normal";
       currentVolume = 60;
+      isAudioStreaming = false;
+      audioPacketCount = 0;
     });
     
     batterySubscription?.cancel();
     connectionSubscription?.cancel();
+    audioSubscription?.cancel();
   }
 
   void showSnackBar(String message) {
@@ -665,6 +751,37 @@ class _TearisHomeState extends State<TearisHome> {
                 ],
               ),
             ),
+
+            const SizedBox(height: 30),
+
+            // Indicador de streaming de audio (para debug/UI)
+            if (connectedDevice != null)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isAudioStreaming ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isAudioStreaming ? Colors.blue : Colors.grey,
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isAudioStreaming ? Icons.audiotrack : Icons.audiotrack_outlined,
+                      color: isAudioStreaming ? Colors.blue : Colors.grey,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        isAudioStreaming ? "Stream activo | Paquetes: $audioPacketCount" : "Esperando stream de audio...",
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
             const SizedBox(height: 30),
 
