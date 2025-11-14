@@ -585,6 +585,16 @@
             opacity: 1;
         }
 
+        /* Mostrar imagen cuando AOS activa la animación (entrada en vista) */
+        .milestone.aos-animate .milestone-image {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .milestone.aos-animate .milestone-image img {
+            transform: scale(1.03);
+        }
+
         .milestone-image img {
             width: 100%;
             height: 100%;
@@ -1396,11 +1406,30 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img loading="lazy" decoding="async" src="images/progress/ia.jpg" alt="Implementación de IA en septiembre" class="milestone-img-contain">
+                        <img loading="lazy" decoding="async" src="images/progress/esquematico.png" alt="Implementación de IA en septiembre" class="milestone-img-contain">
                     </div>
                 </div>
-                
-</div>
+
+                <!-- Hito 8 - Sistema de Filtrado Operativo y Validación de Hardware - Septiembre 2025 -->
+                <div class="milestone" data-aos="fade-up" data-aos-delay="1400">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-check-circle"></i> Sistema de Filtrado Operativo y Validación de Hardware</h3>
+                        <p>Alcanzamos la primera implementación exitosa del filtro IIR1 en la Raspberry Pi Zero 2W, logrando una reducción significativa del ruido ambiental y una mejora notable en la claridad de la señal de audio. Realizamos pruebas exhaustivas con el módulo WM8960 Audio HAT, confirmando la correcta funcionalidad de la salida de audio a través del conector jack 3.5mm.</p>
+                        <div class="milestone-date">Septiembre 2025</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-wave-square"></i> Filtro IIR1 Implementado</div>
+                            <div class="tech-item"><i class="fas fa-assistive-listening-systems"></i> WM8960 Audio HAT</div>
+                            <div class="tech-item"><i class="fas fa-sliders-h"></i> Cancelación Activa</div>
+                            <div class="tech-item"><i class="fas fa-bolt"></i> Sistema Operativo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img loading="lazy" decoding="async" src="images/progress/.jpg" alt="Sistema de filtrado operativo en septiembre" class="milestone-img-contain">
+                    </div>
+                </div>
+
+                </div>
                 </div>
             </div>
         </div>
