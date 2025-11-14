@@ -576,7 +576,8 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             transform: translateY(30px);
             opacity: 0;
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease;
+            will-change: transform, opacity;
         }
 
         .milestone:hover .milestone-image {
@@ -584,11 +585,22 @@
             opacity: 1;
         }
 
+        /* Mostrar imagen cuando AOS activa la animación (entrada en vista) */
+        .milestone.aos-animate .milestone-image {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .milestone.aos-animate .milestone-image img {
+            transform: scale(1.03);
+        }
+
         .milestone-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.8s ease;
+            transition: transform 0.45s ease;
+            will-change: transform;
         }
 
         .milestone:hover .milestone-image img {
@@ -1263,7 +1275,7 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img src="images/progress/inti.jpg" alt="Reunión con el INTI">
+                        <img loading="lazy" decoding="async" src="images/progress/inti.jpg" alt="Reunión con el INTI">
                     </div>
                 </div>
                 
@@ -1281,7 +1293,7 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img src="images/progress/ia.jpg" alt="Entrenamiento de IA" class="milestone-img-contain">
+                        <img loading="lazy" decoding="async" src="images/progress/ia.jpg" alt="Entrenamiento de IA" class="milestone-img-contain">
                     </div>
                 </div>
                 
@@ -1300,7 +1312,7 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img src="images/progress/fotojunio.png" alt="Componentes de hardware adquiridos en mayo" class="milestone-img-contain">
+                        <img loading="lazy" decoding="async" src="images/progress/fotojunio.png" alt="Componentes de hardware adquiridos en mayo" class="milestone-img-contain">
                     </div>
                 </div>
                 
@@ -1318,7 +1330,7 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img src="images/progress/audio.jpg" alt="Pruebas de audio">
+                        <img loading="lazy" decoding="async" src="images/progress/audio.jpg" alt="Pruebas de audio">
                     </div>
                 </div>
                 
@@ -1337,7 +1349,7 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img src="images/progress/fotoo.png" alt="Configuración de sistema en junio" class="milestone-img-contain">
+                        <img loading="lazy" decoding="async" src="images/progress/fotoo.png" alt="Configuración de sistema en junio" class="milestone-img-contain">
                     </div>
                 </div>
 <!-- Hito 5 - Procesamiento de Audio y Filtrado - Julio -->
@@ -1355,7 +1367,7 @@
     </div>
     
     <div class="milestone-image">
-        <img src="images/progress/audiohat.jpg" alt="Módulo de audio WM8960" class="milestone-img-contain">
+        <img loading="lazy" decoding="async" src="images/progress/audiohat.jpg" alt="Módulo de audio WM8960" class="milestone-img-contain">
     </div>
 </div>
                 
@@ -1374,10 +1386,50 @@
                     </div>
                     
                     <div class="milestone-image">
-                        <img src="images/progress/agosto.jpg" alt="Optimización de hardware en agosto" class="milestone-img-contain">
+                        <img loading="lazy" decoding="async" src="images/progress/agosto.jpg" alt="Optimización de hardware en agosto" class="milestone-img-contain">
                     </div>
                 </div>
 
+                <!-- Hito 7 - Inteligencia Artificial y Filtrado Avanzado - Septiembre 2025 -->
+                <div class="milestone" data-aos="fade-up" data-aos-delay="1200">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-robot"></i> Inteligencia Artificial y Filtrado Avanzado</h3>
+                        <p>Septiembre marcó un avance revolucionario con la implementación de inteligencia artificial en nuestro sistema. Investigamos e implementamos RNNoise, un modelo de filtrado neuronal optimizado para dispositivos embebidos que permite reducción de ruido en tiempo real con mínima latencia.</p>
+                        
+                        <div class="milestone-date">Septiembre 2025</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-brain"></i> RNNoise</div>
+                            <div class="tech-item"><i class="fas fa-filter"></i> Filtro IIR1</div>
+                            <div class="tech-item"><i class="fas fa-microchip"></i> TensorFlow Lite</div>
+                            <div class="tech-item"><i class="fas fa-mobile-alt"></i> Desarrollo App</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img loading="lazy" decoding="async" src="images/progress/esquematico.png" alt="Implementación de IA en septiembre" class="milestone-img-contain">
+                    </div>
+                </div>
+
+                <!-- Hito 8 - Sistema de Filtrado Operativo y Validación de Hardware - Septiembre 2025 -->
+                <div class="milestone" data-aos="fade-up" data-aos-delay="1400">
+                    <div class="milestone-content">
+                        <h3><i class="fas fa-check-circle"></i> Sistema de Filtrado Operativo y Validación de Hardware</h3>
+                        <p>Alcanzamos la primera implementación exitosa del filtro IIR1 en la Raspberry Pi Zero 2W, logrando una reducción significativa del ruido ambiental y una mejora notable en la claridad de la señal de audio. Realizamos pruebas exhaustivas con el módulo WM8960 Audio HAT, confirmando la correcta funcionalidad de la salida de audio a través del conector jack 3.5mm.</p>
+                        <div class="milestone-date">Septiembre 2025</div>
+                        <div class="tech-stack">
+                            <div class="tech-item"><i class="fas fa-wave-square"></i> Filtro IIR1 Implementado</div>
+                            <div class="tech-item"><i class="fas fa-assistive-listening-systems"></i> WM8960 Audio HAT</div>
+                            <div class="tech-item"><i class="fas fa-sliders-h"></i> Cancelación Activa</div>
+                            <div class="tech-item"><i class="fas fa-bolt"></i> Sistema Operativo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="milestone-image">
+                        <img loading="lazy" decoding="async" src="images/progress/.jpg" alt="Sistema de filtrado operativo en septiembre" class="milestone-img-contain">
+                    </div>
+                </div>
+
+                </div>
                 </div>
             </div>
         </div>
@@ -1397,7 +1449,7 @@
         <div class="team-grid">
             <div class="team-member" data-aos="zoom-in" data-aos-delay="200">
                 <div class="member-photo">
-                    <img src="images/team/martin.jpg" alt="Tomás Martín Bianco">
+                    <img loading="lazy" decoding="async" src="images/team/Martin.jpg" alt="Tomás Martín Bianco">
                 </div>
                 <div class="member-info">
                     <h3>BIANCO, Tomás Martín</h3>
@@ -1407,7 +1459,7 @@
             
             <div class="team-member" data-aos="zoom-in" data-aos-delay="400">
                 <div class="member-photo">
-                    <img src="images/team/luis.jpg" alt="Luis Brítez">
+                    <img loading="lazy" decoding="async" src="images/team/luis.jpg" alt="Luis Brítez">
                 </div>
                 <div class="member-info">
                     <h3>BRITEZ, Luis</h3>
@@ -1417,7 +1469,7 @@
             
             <div class="team-member" data-aos="zoom-in" data-aos-delay="600">
                 <div class="member-photo">
-                    <img src="images/team/santino.jpg" alt="Santino Rafael Ramírez Tolosa" style="object-position: top 20% center;">
+                    <img loading="lazy" decoding="async" src="images/team/santino.jpg" alt="Santino Rafael Ramírez Tolosa" style="object-position: top 20% center;">
                 </div>
                 <div class="member-info">
                     <h3>RAMÍREZ TOLOSA, Santino Rafael</h3>
@@ -1427,7 +1479,7 @@
             
             <div class="team-member" data-aos="zoom-in" data-aos-delay="800">
                 <div class="member-photo">
-                    <img src="images/team/juan.jpg" alt="Juan Cruz Ariel Somoza" style="object-position: top 20% center;">
+                    <img loading="lazy" decoding="async" src="images/team/juan.jpg" alt="Juan Cruz Ariel Somoza" style="object-position: top 20% center;">
                 </div>
                 <div class="member-info">
                     <h3>SOMOZA, Juan Cruz Ariel</h3>
@@ -1490,7 +1542,7 @@
     <script>
         // Initialize AOS for scroll animations
         AOS.init({
-            duration: 1000,
+            duration: 700,
             once: true,
             easing: 'ease-in-out'
         });
@@ -1578,34 +1630,24 @@
             });
         }
         
-        // Animación adicional para los hitos al aparecer
+        // Animación adicional para los hitos al aparecer (optimizada)
         document.addEventListener('DOMContentLoaded', function() {
             const milestones = document.querySelectorAll('.milestone');
             
             milestones.forEach(milestone => {
-                // Animación al pasar el mouse
+                // Animación al pasar el mouse (sólo escala en hover)
                 milestone.addEventListener('mouseenter', () => {
                     const image = milestone.querySelector('.milestone-image img');
-                    image.style.transform = 'scale(1.05)';
+                    if (image) image.style.transform = 'scale(1.03)';
                 });
                 
                 milestone.addEventListener('mouseleave', () => {
                     const image = milestone.querySelector('.milestone-image img');
-                    image.style.transform = 'scale(1)';
+                    if (image) image.style.transform = '';
                 });
                 
-                // Animación de aparición al hacer scroll
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const image = entry.target.querySelector('.milestone-image');
-                            image.style.transform = 'translateY(0)';
-                            image.style.opacity = '1';
-                        }
-                    });
-                }, { threshold: 0.3 });
-                
-                observer.observe(milestone);
+                // No creamos observers por cada hito para reducir carga.
+                // AOS se encarga de las animaciones de entrada.
             });
         });
         
